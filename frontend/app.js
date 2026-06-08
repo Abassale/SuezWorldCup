@@ -190,7 +190,6 @@ function renderGroups() {
       <div class="group-head"><h3>${esc(g.group)}</h3><span>${g.teams.length} équipe(s)</span></div>
       <table><thead><tr><th>#</th><th>Nation</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th><th>Diff</th></tr></thead>
       <tbody>${g.teams.map((t,i)=>`<tr class="${i<2?'qualif':i===2?'watch':''}"><td>${i+1}</td><td>${flag(t.flag)} <strong>${esc(t.name)}</strong></td><td><strong>${t.points}</strong></td><td>${t.played}</td><td>${t.won}</td><td>${t.drawn}</td><td>${t.lost}</td><td>${t.gd}</td></tr>`).join("")}</tbody></table>
-      <div class="group-matches">${g.matches.map(m => `<div>${flag(m.home_flag)} ${esc(m.home_team)} <strong>${m.status==="FT" ? `${m.home_score}-${m.away_score}` : shortDate(m.match_date)}</strong> ${flag(m.away_flag)} ${esc(m.away_team)}</div>`).join("")}</div>
     </section>`).join("") : `<div class="empty">Aucun groupe. L’admin doit importer OpenFootball.</div>`;
 }
 
