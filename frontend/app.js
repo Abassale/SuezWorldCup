@@ -245,9 +245,22 @@ function renderTeams() {
 function renderAdmin() {
   if (!me || me.role !== "admin") return;
   $("adminMatches").innerHTML = data.matches.map(m => `
-    <article class="match-card">
-      <div>${flag(m.home_flag)} ${esc(m.home_team)} - ${flag(m.away_flag)} ${esc(m.away_team)} <small>${shortDate(m.match_date)}</small></div>
-      <div class="score-admin"><input id="h_${m.id}" type="number" min="0" value="${m.home_score ?? ""}"><input id="a_${m.id}" type="number" min="0" value="${m.away_score ?? ""}"><button class="secondary-btn" onclick="saveScore('${m.id}')">Score</button></div>
+    <article class="match-card admin-score-card">
+      <div class="match-meta">
+        <span>${esc(m.group_name || m.phase)}</span>
+        <span>${shortDate(m.match_date)}</span>
+        <span>${m.status === "FT" ? "Terminé" : "À renseigner"}</span>
+      </div>
+      <div class="match-teams pred-line admin-score-line">
+        <span class="team-side">${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span>
+        <span class="pred-inputs admin-score-inputs">
+          <input id="h_${m.id}" type="number" min="0" value="${m.home_score ?? ""}">
+          <b>-</b>
+          <input id="a_${m.id}" type="number" min="0" value="${m.away_score ?? ""}">
+        </span>
+        <span class="team-side away-side">${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span>
+        <button class="secondary-btn score-btn" onclick="saveScore('${m.id}')">Score</button>
+      </div>
     </article>`).join("");
   $("historyList").innerHTML = data.history.map(h => `<div class="history-item"><small>${shortDate(h.created_at)}</small><p>${esc(h.action)}</p></div>`).join("") || `<div class="empty">Aucun historique.</div>`;
 }
