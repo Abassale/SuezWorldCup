@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suez Eau France Championship</title>
+  <link rel="icon" href="suez-logo.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast"></div>
+
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <img class="auth-logo" src="suez-logo.png" alt="Suez" />
+      <h1>Suez Eau France Championship</h1>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Connexion</button>
+        <button class="auth-tab" data-tab="register">Créer un compte</button>
+      </div>
+
+      <form id="loginForm" class="auth-form active">
+        <label>Pseudo</label>
+        <input id="loginPseudo" required />
+        <label>Mot de passe</label>
+        <input id="loginPassword" type="password" required />
+        <button class="primary-btn">Se connecter</button>
+      </form>
+
+      <form id="registerForm" class="auth-form">
+        <label>Pseudo</label>
+        <input id="registerPseudo" required />
+        <label>Mot de passe</label>
+        <input id="registerPassword" type="password" minlength="4" required />
+        <label>Favori vainqueur Coupe du Monde</label>
+        <select id="favoriteWinner" required></select>
+        <button class="primary-btn">Créer mon compte</button>
+      </form>
+    </div>
+  </section>
+
+  <main id="app" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="suez-logo.png" alt="Suez" />
+        <div id="currentUser" class="user-pill">Utilisateur</div>
+      </div>
+
+      <nav>
+        <button class="nav-btn active" data-view="dashboard">Tableau de bord</button>
+        <button class="nav-btn" data-view="myPredictions">Mes pronostics</button>
+        <button class="nav-btn" data-view="worldCup">Coupe du Monde 2026</button>
+        <button class="nav-btn" data-view="results">Résultats</button>
+        <button class="nav-btn" data-view="predictions">Pronostics</button>
+        <button class="nav-btn" data-view="ranking">Classement</button>
+        <button class="nav-btn" data-view="teams">Équipes</button>
+        <button class="nav-btn admin-only" data-view="admin">Admin</button>
+      </nav>
+
+      <button id="logoutBtn" class="danger-btn">Déconnexion</button>
+    </aside>
+
+    <section class="content">
+      <header class="topbar">
+        <h2 id="viewTitle">Tableau de bord</h2>
+        <p id="viewSubtitle">Vue d’ensemble du championnat interne.</p>
+      </header>
+
+      <section id="dashboardView" class="view active">
+        <div class="panel">
+          <div class="panel-head"><h3>Mon équipe</h3></div>
+          <div id="dashboardTeam"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Matchs du jour</h3></div>
+          <div id="todayMatches" class="cards"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Mes pronostics enregistrés</h3></div>
+          <div id="dashboardPredictions" class="cards"></div>
+        </div>
+      </section>
+
+      <section id="myPredictionsView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Mes pronostics</h3></div>
+          <select id="myPredStatus">
+            <option value="all">Tous</option>
+            <option value="upcoming">À venir</option>
+            <option value="locked">Verrouillés</option>
+            <option value="finished">Terminés</option>
+          </select>
+          <div id="myPredictionsList" class="cards"></div>
+        </div>
+      </section>
+
+      <section id="worldCupView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Classement des groupes</h3></div>
+          <div id="groupsList" class="groups-grid"></div>
+        </div>
+      </section>
+
+      <section id="resultsView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Résultats</h3></div>
+          <div id="resultsList" class="cards"></div>
+        </div>
+      </section>
+
+      <section id="predictionsView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Pronostics</h3></div>
+          <div class="toolbar">
+            <select id="phaseFilter">
+              <option value="all">Toutes les phases</option>
+              <option value="Group Stage">Groupes</option>
+              <option value="Round of 32">32es / 16es</option>
+              <option value="Round of 16">8es</option>
+              <option value="Quarter-finals">Quarts</option>
+              <option value="Semi-finals">Demies</option>
+              <option value="Third-place match">Petite finale</option>
+              <option value="Final">Finale</option>
+            </select>
+            <select id="groupFilter"><option value="all">Tous les groupes</option></select>
+            <button id="saveVisibleBtn" class="secondary-btn">Enregistrer cette sélection</button>
+          </div>
+          <div id="predictionsList" class="cards"></div>
+          <button id="saveAllBtn" class="floating-save primary-btn">Enregistrer tous les pronostics</button>
+        </div>
+      </section>
+
+      <section id="rankingView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Classement des équipes</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Équipe</th><th>Membres</th><th>Score équipe</th><th>Total</th><th>Bonus</th><th>Exact</th><th>Diff.</th><th>Bon résultat</th><th>Pronostics</th></tr></thead>
+              <tbody id="rankingTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="teamsView" class="view">
+        <div class="panel">
+          <div class="panel-head"><h3>Créer ou rejoindre une équipe</h3></div>
+          <form id="teamForm" class="team-form">
+            <label>Nom de l’équipe</label>
+            <input id="teamName" />
+            <label>Logo</label>
+            <div id="teamLogos" class="logo-picker"></div>
+            <button class="primary-btn">Créer et rejoindre</button>
+          </form>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Équipes déjà créées</h3></div>
+          <div id="teamsList" class="cards"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Détail équipe</h3></div>
+          <div id="teamDetail"></div>
+        </div>
+      </section>
+
+      <section id="adminView" class="view">
+        <div class="panel admin-panel">
+          <h3>Administration</h3>
+          <button id="importBtn" class="primary-btn">Importer OpenFootball 2026</button>
+          <button id="resetBtn" class="danger-btn">Réinitialiser championnat</button>
+          <button id="clearHistoryBtn" class="secondary-btn">Vider historique</button>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Scores admin</h3></div>
+          <div id="adminMatches" class="cards"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Historique admin</h3></div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
