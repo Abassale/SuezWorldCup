@@ -209,7 +209,7 @@ function renderGroupFilter() {
   const select = $("groupFilter");
   const prev = select.value;
   const groups = [...new Set(data.matches.filter(m => normalizePhase(m.phase) === "Group Stage").map(m => m.group_name || "Groupes"))].sort();
-  select.innerHTML = `<option value="all">Tous les groupes</option>` + groups.map(g => `<option value="${esc(displayGroupName(g))}">${esc(displayGroupName(g))}</option>`).join("");
+  select.innerHTML = `<option value="all">Tous les groupes</option>` + groups.map(g => `<option value="${esc(g)}">${esc(displayGroupName(g))}</option>`).join("");
   select.value = groups.includes(prev) ? prev : "all";
   select.disabled = $("phaseFilter").value !== "Group Stage";
 }
@@ -251,26 +251,29 @@ function renderTeams() {
 function renderAdmin() {
   if (!me || me.role !== "admin") return;
 
-  $("adminUsers").innerHTML = data.users.length ? data.users.map(u => {
-    const team = data.teams.find(t => t.id === u.team_id);
-    const stats = predictionStatsForUser(u);
-    const canDelete = u.id !== me.id;
-    return `
-      <article class="admin-user-card">
-        <div class="admin-user-main">
-          <div class="admin-user-avatar">${esc((u.pseudo || "?").slice(0,1).toUpperCase())}</div>
-          <div>
-            <h4>${esc(u.pseudo)}</h4>
-            <p>${u.role === "admin" ? "Admin" : "Joueur"} · ${team ? esc(team.name) : "Sans équipe"} · ${stats.predictions} pronostic(s)</p>
-            <small>Favori : ${esc(u.favorite_winner || "—")} · Créé le ${shortDate(u.created_at)}</small>
+  const adminUsersEl = $("adminUsers");
+  if (adminUsersEl) {
+    adminUsersEl.innerHTML = data.users.length ? data.users.map(u => {
+      const team = data.teams.find(t => t.id === u.team_id);
+      const stats = predictionStatsForUser(u);
+      const canDelete = u.id !== me.id;
+      return `
+        <article class="admin-user-card">
+          <div class="admin-user-main">
+            <div class="admin-user-avatar">${esc((u.pseudo || "?").slice(0,1).toUpperCase())}</div>
+            <div>
+              <h4>${esc(u.pseudo)}</h4>
+              <p>${u.role === "admin" ? "Admin" : "Joueur"} · ${team ? esc(team.name) : "Sans équipe"} · ${stats.predictions} pronostic(s)</p>
+              <small>Favori : ${esc(u.favorite_winner || "—")} · Créé le ${shortDate(u.created_at)}</small>
+            </div>
           </div>
-        </div>
-        <div class="admin-user-actions">
-          <strong>${stats.points} pt(s)</strong>
-          ${canDelete ? `<button class="danger-btn" onclick="deleteUserAccount('${u.id}')">Supprimer</button>` : `<button class="secondary-btn" disabled>Compte actuel</button>`}
-        </div>
-      </article>`;
-  }).join("") : `<div class="empty">Aucun compte.</div>`;
+          <div class="admin-user-actions">
+            <strong>${stats.points} pt(s)</strong>
+            ${canDelete ? `<button class="danger-btn" onclick="deleteUserAccount('${u.id}')">Supprimer</button>` : `<button class="secondary-btn" disabled>Compte actuel</button>`}
+          </div>
+        </article>`;
+    }).join("") : `<div class="empty">Aucun compte.</div>`;
+  }
 
   $("adminMatches").innerHTML = data.matches.map(m => `
     <article class="match-card admin-score-card">
