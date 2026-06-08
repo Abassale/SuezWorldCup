@@ -53,7 +53,10 @@ function bindUI() {
 
   $("loginForm").addEventListener("submit", login);
   $("registerForm").addEventListener("submit", register);
-  $$(".nav-btn").forEach(btn => btn.addEventListener("click", () => switchView(btn.dataset.view)));
+  $$(".nav-btn").forEach(btn => btn.addEventListener("click", () => {
+    btn.blur();
+    switchView(btn.dataset.view);
+  }));
   $("logoutBtn").addEventListener("click", logout);
   $("phaseFilter").addEventListener("change", () => { renderGroupFilter(); renderPredictions(); });
   $("groupFilter").addEventListener("change", renderPredictions);
