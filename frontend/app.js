@@ -278,6 +278,28 @@ function renderAdmin() {
     }).join("") : `<div class="empty">Aucun compte.</div>`;
   }
 
+  const adminTeamsEl = $("adminTeams");
+  if (adminTeamsEl) {
+    adminTeamsEl.innerHTML = data.teams.length ? data.teams.map(t => {
+      const members = membersOf(t.id);
+      const stats = computeTeamStats(t);
+      return `
+        <article class="admin-team-card">
+          <div class="admin-user-main">
+            <span class="team-logo mini-team-logo">${esc(t.logo || "💧")}</span>
+            <div>
+              <h4>${esc(t.name)}</h4>
+              <p>${members.length} membre(s) · ${stats.total_points} point(s) total</p>
+              <small>Score équipe : ${stats.score} · Créée le ${shortDate(t.created_at)}</small>
+            </div>
+          </div>
+          <div class="admin-user-actions">
+            <button class="danger-btn" onclick="deleteTeamAdmin('${t.id}')">Supprimer l’équipe</button>
+          </div>
+        </article>`;
+    }).join("") : `<div class="empty">Aucune équipe.</div>`;
+  }
+
   $("adminMatches").innerHTML = data.matches.map(m => `
     <article class="match-card admin-score-card">
       <div class="match-meta">
@@ -401,6 +423,25 @@ async function deleteUserAccount(userId) {
   await addHistory(`Compte supprimé : ${user.pseudo}.`);
   await refreshAll();
   toast("Compte supprimé de la base.");
+}
+
+async function deleteTeamAdmin(teamId) {
+  if (!me || me.role !== "admin") return;
+  const team = data.teams.find(t => t.id === teamId);
+  if (!team) return toast("Équipe introuvable.");
+
+  const members = membersOf(teamId);
+  const message = members.length
+    ? `Supprimer définitivement l'équipe "${team.name}" ?\n\n${members.length} membre(s) seront retirés de cette équipe, mais leurs comptes et pronostics seront conservés.`
+    : `Supprimer définitivement l'équipe "${team.name}" ?`;
+  if (!confirm(message)) return;
+
+  const { error } = await db.from("teams").delete().eq("id", teamId);
+  if (error) return toast(error.message);
+
+  await addHistory(`Équipe supprimée : ${team.name}.`);
+  await refreshAll();
+  toast("Équipe supprimée de la base.");
 }
 
 async function importOpenFootball() {
