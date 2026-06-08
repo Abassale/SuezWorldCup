@@ -53,7 +53,10 @@ function bindUI() {
 
   $("loginForm").addEventListener("submit", login);
   $("registerForm").addEventListener("submit", register);
-  $$(".nav-btn").forEach(btn => btn.addEventListener("click", () => switchView(btn.dataset.view)));
+  $$(".nav-btn").forEach(btn => btn.addEventListener("click", () => {
+    btn.blur();
+    switchView(btn.dataset.view);
+  }));
   $("logoutBtn").addEventListener("click", logout);
   $("phaseFilter").addEventListener("change", () => { renderGroupFilter(); renderPredictions(); });
   $("groupFilter").addEventListener("change", renderPredictions);
@@ -224,21 +227,8 @@ function renderPredictions() {
 
 function renderRanking() {
   const rows = computeRanking();
-  $("rankingTable").innerHTML = rows.length ? rows.map((r,i)=>{
-    const rankCls = i === 0 ? "gold" : i === 1 ? "silver" : i === 2 ? "bronze" : "";
-    return `<tr onclick="openTeam('${r.team.id}')">
-      <td><span class="rank-num ${rankCls}">${i+1}</span></td>
-      <td><button class="team-link">${esc(r.team.logo || "💧")} ${esc(r.team.name)}</button></td>
-      <td>${r.members_count}</td>
-      <td><strong>${r.score}</strong></td>
-      <td>${r.total_points}</td>
-      <td>${r.bonus}</td>
-      <td>${r.exact}</td>
-      <td>${r.diff}</td>
-      <td>${r.outcome}</td>
-      <td>${r.predictions}</td>
-    </tr>`;
-  }).join("") : `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:24px">Aucune équipe.</td></tr>`;
+  $("rankingTable").innerHTML = rows.length ? rows.map((r,i)=>`
+    <tr onclick="openTeam('${r.team.id}')"><td>${i+1}</td><td><button class="team-link">${esc(r.team.logo || "💧")} ${esc(r.team.name)}</button></td><td>${r.members_count}</td><td><strong>${r.score}</strong></td><td>${r.total_points}</td><td>${r.bonus}</td><td>${r.exact}</td><td>${r.diff}</td><td>${r.outcome}</td><td>${r.predictions}</td></tr>`).join("") : `<tr><td colspan="10">Aucune équipe.</td></tr>`;
 }
 
 function renderTeams() {
@@ -506,69 +496,18 @@ function worldCupWinner() {
 function membersOf(teamId) { return data.users.filter(u => u.team_id === teamId); }
 
 function matchCard(m) {
-  const statusCls = m.status === "FT" ? "status-ft" : "";
-  const scoreHtml = m.status === "FT"
-    ? `<span class="match-score">${m.home_score} – ${m.away_score}</span>`
-    : `<span class="match-score" style="color:var(--faint)">– – –</span>`;
-  return `<article class="match-card">
-    <div class="match-meta">
-      <span>${esc(m.group_name || m.phase)}</span>
-      <span>${shortDate(m.match_date)}</span>
-      <span class="${statusCls}">${m.status === "FT" ? "Terminé" : esc(m.status)}</span>
-    </div>
-    <div class="match-teams">
-      <span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span>
-      ${scoreHtml}
-      <span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span>
-    </div>
-  </article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${esc(m.status)}</span></div><div class="match-teams"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><strong>${m.status==="FT" ? `${m.home_score} - ${m.away_score}` : "-"}</strong><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div></article>`;
 }
 
 function predictionCard(m, p) {
   const locked = isLocked(m);
-  return `<article class="match-card">
-    <div class="match-meta">
-      <span>${esc(m.group_name || m.phase)}</span>
-      <span>${shortDate(m.match_date)}</span>
-      <span class="${locked ? "status-locked" : ""}">${locked ? "Verrouillé" : "Ouvert"}</span>
-    </div>
-    <div class="match-teams pred-line">
-      <span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span>
-      <span class="pred-inputs">
-        <input id="ph_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.home_score ?? ""}">
-        <b>–</b>
-        <input id="pa_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.away_score ?? ""}">
-      </span>
-      <span style="justify-content:flex-end">${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span>
-    </div>
-  </article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${locked ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams pred-line"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><span class="pred-inputs"><input id="ph_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.home_score ?? ""}"><b>-</b><input id="pa_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.away_score ?? ""}"></span><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div></article>`;
 }
 
 function myPredictionCard(p) {
   const m = p.match;
   const pts = pointsFor(p, m);
-  let badgeHtml = "";
-  if (m.status === "FT") {
-    const cls = pts.exact ? "exact" : (pts.points > 0 ? "good" : "miss");
-    const label = pts.exact ? `⭐ ${pts.points} pts` : pts.points > 0 ? `✓ ${pts.points} pts` : `✗ 0 pt`;
-    badgeHtml = `<span class="points-badge ${cls}">${label}</span>`;
-  } else if (isLocked(m)) {
-    badgeHtml = `<span class="points-badge miss">🔒 Verrouillé</span>`;
-  }
-  const realScore = m.status === "FT" ? `<div class="real-score">Score réel : ${m.home_score} – ${m.away_score}</div>` : "";
-  return `<article class="match-card">
-    <div class="match-meta">
-      <span>${esc(m.group_name || m.phase)}</span>
-      <span>${shortDate(m.match_date)}</span>
-      ${badgeHtml}
-    </div>
-    <div class="match-teams">
-      <span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span>
-      <span class="match-score">${p.home_score ?? "?"} – ${p.away_score ?? "?"}</span>
-      <span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span>
-    </div>
-    ${realScore}
-  </article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${m.status==="FT" ? `${pts.points} pt(s)` : isLocked(m) ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><strong>${p.home_score} - ${p.away_score}</strong><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div>${m.status==="FT" ? `<small>Score réel : ${m.home_score}-${m.away_score}</small>` : ""}</article>`;
 }
 
 function populateFavoriteWinner() {
