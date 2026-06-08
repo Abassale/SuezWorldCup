@@ -77,7 +77,10 @@ async function login(e) {
   e.preventDefault();
   const pseudo = $("loginPseudo").value.trim();
   const hash = await sha256($("loginPassword").value);
-  const { data: user, error } = await db.from("app_users").select("id,pseudo,role,favorite_winner,team_id,password_hash").ilike("pseudo", pseudo).maybeSingle();
+  // Connexion volontairement sensible à la casse.
+  // Avant on utilisait ilike(), ce qui pouvait bloquer le compte Admin si un compte "admin"
+  // ou une variante existait aussi dans la base Supabase.
+  const { data: user, error } = await db.from("app_users").select("id,pseudo,role,favorite_winner,team_id,password_hash").eq("pseudo", pseudo).maybeSingle();
   if (error) return toast(error.message);
   if (!user || user.password_hash !== hash) return toast("Pseudo ou mot de passe incorrect.");
   me = { id: user.id, pseudo: user.pseudo, role: user.role, favorite_winner: user.favorite_winner, team_id: user.team_id };
