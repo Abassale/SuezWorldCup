@@ -9,11 +9,7 @@ const COUNTRY_FR = {
   "Argentina":"Argentine","Australia":"Australie","Austria":"Autriche","Belgium":"Belgique","Brazil":"Brésil","Cameroon":"Cameroun","Canada":"Canada","Chile":"Chili","China":"Chine","Colombia":"Colombie","Costa Rica":"Costa Rica","Croatia":"Croatie","Czech Republic":"République tchèque","Czechia":"République tchèque","Denmark":"Danemark","Ecuador":"Équateur","Egypt":"Égypte","England":"Angleterre","Finland":"Finlande","France":"France","Germany":"Allemagne","Ghana":"Ghana","Greece":"Grèce","Honduras":"Honduras","Hungary":"Hongrie","Iceland":"Islande","Iran":"Iran","Iraq":"Irak","Ireland":"Irlande","Italy":"Italie","Ivory Coast":"Côte d’Ivoire","Cote d'Ivoire":"Côte d’Ivoire","Japan":"Japon","Mexico":"Mexique","Morocco":"Maroc","Netherlands":"Pays-Bas","New Zealand":"Nouvelle-Zélande","Nigeria":"Nigeria","Northern Ireland":"Irlande du Nord","Norway":"Norvège","Panama":"Panama","Paraguay":"Paraguay","Peru":"Pérou","Poland":"Pologne","Portugal":"Portugal","Qatar":"Qatar","Romania":"Roumanie","Russia":"Russie","Saudi Arabia":"Arabie saoudite","Scotland":"Écosse","Senegal":"Sénégal","Serbia":"Serbie","Slovakia":"Slovaquie","Slovenia":"Slovénie","South Africa":"Afrique du Sud","South Korea":"Corée du Sud","Korea Republic":"Corée du Sud","Spain":"Espagne","Sweden":"Suède","Switzerland":"Suisse","Tunisia":"Tunisie","Turkey":"Turquie","Türkiye":"Turquie","Ukraine":"Ukraine","United States":"États-Unis","USA":"États-Unis","Uruguay":"Uruguay","Wales":"Pays de Galles","Bosnia & Herzegovina":"Bosnie-Herzégovine","Bosnia and Herzegovina":"Bosnie-Herzégovine","Bosnia-Herzegovina":"Bosnie-Herzégovine","Bosnia Herzegovina":"Bosnie-Herzégovine","Algeria":"Algérie","Jordan":"Jordanie","Curacao":"Curaçao","Curaçao":"Curaçao","Haiti":"Haïti","Uzbekistan":"Ouzbékistan","DR Congo":"République démocratique du Congo","Congo DR":"République démocratique du Congo","Democratic Republic of Congo":"République démocratique du Congo","Democratic Republic of the Congo":"République démocratique du Congo","TBD":"À déterminer"
 };
 
-const FLAG_CODES = {"Afrique du Sud":"za","Algérie":"dz","Allemagne":"de","Angleterre":"gb-eng","Arabie saoudite":"sa","Argentine":"ar","Australie":"au","Autriche":"at","Belgique":"be","Bosnie-Herzégovine":"ba","Brésil":"br","Cameroun":"cm","Canada":"ca","Colombie":"co","Corée du Sud":"kr","Costa Rica":"cr","Croatie":"hr","Curaçao":"cw","Danemark":"dk","Égypte":"eg","Écosse":"gb-sct","Équateur":"ec","Espagne":"es","États-Unis":"us","France":"fr","Ghana":"gh","Haïti":"ht","Irak":"iq","Iran":"ir","Italie":"it","Japon":"jp","Jordanie":"jo","Maroc":"ma","Mexique":"mx","Nigeria":"ng","Norvège":"no","Nouvelle-Zélande":"nz","Ouzbékistan":"uz","Panama":"pa","Paraguay":"py","Pays-Bas":"nl","Pologne":"pl","Portugal":"pt","Qatar":"qa","République démocratique du Congo":"cd","République tchèque":"cz","Sénégal":"sn","Serbie":"rs","Suède":"se","Suisse":"ch","Tunisie":"tn","Turquie":"tr","Ukraine":"ua","Uruguay":"uy","Côte d’Ivoire":"ci","Côte d'Ivoire":"ci","Cap-Vert":"cv"};
-
-const SPECIAL_FLAG_URLS = {
-  "écosse": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Scotland.svg/320px-Flag_of_Scotland.svg.png"
-};
+const FLAG_CODES = {"Afrique du Sud":"za","Algérie":"dz","Allemagne":"de","Angleterre":"gb-eng","Arabie saoudite":"sa","Argentine":"ar","Australie":"au","Autriche":"at","Belgique":"be","Bosnie-Herzégovine":"ba","Brésil":"br","Cameroun":"cm","Canada":"ca","Colombie":"co","Corée du Sud":"kr","Costa Rica":"cr","Croatie":"hr","Curaçao":"cw","Danemark":"dk","Égypte":"eg","Équateur":"ec","Espagne":"es","États-Unis":"us","France":"fr","Ghana":"gh","Haïti":"ht","Iran":"ir","Italie":"it","Japon":"jp","Jordanie":"jo","Maroc":"ma","Mexique":"mx","Nigeria":"ng","Norvège":"no","Nouvelle-Zélande":"nz","Ouzbékistan":"uz","Panama":"pa","Paraguay":"py","Pays-Bas":"nl","Pologne":"pl","Portugal":"pt","Qatar":"qa","République démocratique du Congo":"cd","République tchèque":"cz","Sénégal":"sn","Serbie":"rs","Suisse":"ch","Tunisie":"tn","Ukraine":"ua","Uruguay":"uy"};
 
 let db = null;
 let me = null;
@@ -250,28 +246,6 @@ function renderTeams() {
 
 function renderAdmin() {
   if (!me || me.role !== "admin") return;
-
-  $("adminUsers").innerHTML = data.users.length ? data.users.map(u => {
-    const team = data.teams.find(t => t.id === u.team_id);
-    const stats = predictionStatsForUser(u);
-    const canDelete = u.id !== me.id;
-    return `
-      <article class="admin-user-card">
-        <div class="admin-user-main">
-          <div class="admin-user-avatar">${esc((u.pseudo || "?").slice(0,1).toUpperCase())}</div>
-          <div>
-            <h4>${esc(u.pseudo)}</h4>
-            <p>${u.role === "admin" ? "Admin" : "Joueur"} · ${team ? esc(team.name) : "Sans équipe"} · ${stats.predictions} pronostic(s)</p>
-            <small>Favori : ${esc(u.favorite_winner || "—")} · Créé le ${shortDate(u.created_at)}</small>
-          </div>
-        </div>
-        <div class="admin-user-actions">
-          <strong>${stats.points} pt(s)</strong>
-          ${canDelete ? `<button class="danger-btn" onclick="deleteUserAccount('${u.id}')">Supprimer</button>` : `<button class="secondary-btn" disabled>Compte actuel</button>`}
-        </div>
-      </article>`;
-  }).join("") : `<div class="empty">Aucun compte.</div>`;
-
   $("adminMatches").innerHTML = data.matches.map(m => `
     <article class="match-card admin-score-card">
       <div class="match-meta">
@@ -280,13 +254,13 @@ function renderAdmin() {
         <span>${m.status === "FT" ? "Terminé" : "À renseigner"}</span>
       </div>
       <div class="match-teams pred-line admin-score-line">
-        <span class="team-side">${flag(m.home_flag || flagUrl(m.home_team))} <strong>${esc(m.home_team)}</strong></span>
+        <span class="team-side">${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span>
         <span class="pred-inputs admin-score-inputs">
           <input id="h_${m.id}" type="number" min="0" value="${m.home_score ?? ""}">
           <b>-</b>
           <input id="a_${m.id}" type="number" min="0" value="${m.away_score ?? ""}">
         </span>
-        <span class="team-side away-side">${flag(m.away_flag || flagUrl(m.away_team))} <strong>${esc(m.away_team)}</strong></span>
+        <span class="team-side away-side">${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span>
         <button class="secondary-btn score-btn" onclick="saveScore('${m.id}')">Score</button>
       </div>
     </article>`).join("");
@@ -380,21 +354,6 @@ async function resetChampionship() {
 async function clearHistory() {
   await db.from("history").delete().neq("id", "00000000-0000-0000-0000-000000000000");
   await refreshAll();
-}
-
-async function deleteUserAccount(userId) {
-  if (!me || me.role !== "admin") return;
-  if (userId === me.id) return toast("Tu ne peux pas supprimer ton propre compte admin.");
-  const user = data.users.find(u => u.id === userId);
-  if (!user) return toast("Compte introuvable.");
-  if (!confirm(`Supprimer définitivement le compte "${user.pseudo}" ?\n\nSes pronostics seront aussi supprimés de la base.`)) return;
-
-  const { error } = await db.from("app_users").delete().eq("id", userId);
-  if (error) return toast(error.message);
-
-  await addHistory(`Compte supprimé : ${user.pseudo}.`);
-  await refreshAll();
-  toast("Compte supprimé de la base.");
 }
 
 async function importOpenFootball() {
@@ -537,18 +496,18 @@ function worldCupWinner() {
 function membersOf(teamId) { return data.users.filter(u => u.team_id === teamId); }
 
 function matchCard(m) {
-  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${esc(m.status)}</span></div><div class="match-teams"><span>${flag(m.home_flag || flagUrl(m.home_team))} <strong>${esc(m.home_team)}</strong></span><strong>${m.status==="FT" ? `${m.home_score} - ${m.away_score}` : "-"}</strong><span>${flag(m.away_flag || flagUrl(m.away_team))} <strong>${esc(m.away_team)}</strong></span></div></article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${esc(m.status)}</span></div><div class="match-teams"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><strong>${m.status==="FT" ? `${m.home_score} - ${m.away_score}` : "-"}</strong><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div></article>`;
 }
 
 function predictionCard(m, p) {
   const locked = isLocked(m);
-  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${locked ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams pred-line"><span>${flag(m.home_flag || flagUrl(m.home_team))} <strong>${esc(m.home_team)}</strong></span><span class="pred-inputs"><input id="ph_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.home_score ?? ""}"><b>-</b><input id="pa_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.away_score ?? ""}"></span><span>${flag(m.away_flag || flagUrl(m.away_team))} <strong>${esc(m.away_team)}</strong></span></div></article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${locked ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams pred-line"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><span class="pred-inputs"><input id="ph_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.home_score ?? ""}"><b>-</b><input id="pa_${m.id}" type="number" min="0" ${locked ? "disabled" : ""} value="${p?.away_score ?? ""}"></span><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div></article>`;
 }
 
 function myPredictionCard(p) {
   const m = p.match;
   const pts = pointsFor(p, m);
-  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${m.status==="FT" ? `${pts.points} pt(s)` : isLocked(m) ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams"><span>${flag(m.home_flag || flagUrl(m.home_team))} <strong>${esc(m.home_team)}</strong></span><strong>${p.home_score} - ${p.away_score}</strong><span>${flag(m.away_flag || flagUrl(m.away_team))} <strong>${esc(m.away_team)}</strong></span></div>${m.status==="FT" ? `<small>Score réel : ${m.home_score}-${m.away_score}</small>` : ""}</article>`;
+  return `<article class="match-card"><div class="match-meta"><span>${esc(m.group_name || m.phase)}</span><span>${shortDate(m.match_date)}</span><span>${m.status==="FT" ? `${pts.points} pt(s)` : isLocked(m) ? "Verrouillé" : "Ouvert"}</span></div><div class="match-teams"><span>${flag(m.home_flag)} <strong>${esc(m.home_team)}</strong></span><strong>${p.home_score} - ${p.away_score}</strong><span>${flag(m.away_flag)} <strong>${esc(m.away_team)}</strong></span></div>${m.status==="FT" ? `<small>Score réel : ${m.home_score}-${m.away_score}</small>` : ""}</article>`;
 }
 
 function populateFavoriteWinner() {
@@ -576,41 +535,8 @@ function countryFr(name) {
   const clean = String(name || "").trim();
   return COUNTRY_FR[clean] || clean || "À déterminer";
 }
-function canonicalCountryKey(name) {
-  return String(name || "")
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[’']/g, "'")
-    .toLowerCase()
-    .replace(/[^a-z0-9']+/g, " ")
-    .trim();
-}
-
 function flagUrl(name) {
-  const frName = countryFr(name);
-  const direct = FLAG_CODES[frName];
-  if (direct) return `https://flagcdn.com/w40/${direct}.png`;
-
-  const aliases = {
-    "cape verde": "Cap-Vert",
-    "cap vert": "Cap-Vert",
-    "cabo verde": "Cap-Vert",
-    "ivory coast": "Côte d’Ivoire",
-    "cote d'ivoire": "Côte d’Ivoire",
-    "cote d ivoire": "Côte d’Ivoire",
-    "cote divoire": "Côte d’Ivoire",
-    "turkiye": "Turquie",
-    "turkey": "Turquie",
-    "scotland": "Écosse",
-    "sweden": "Suède",
-    "iraq": "Irak"
-  };
-
-  const key = canonicalCountryKey(frName);
-  const resolved = aliases[key] || frName;
-  const special = SPECIAL_FLAG_URLS[canonicalCountryKey(resolved)];
-  if (special) return special;
-  const code = FLAG_CODES[resolved];
+  const code = FLAG_CODES[countryFr(name)];
   return code ? `https://flagcdn.com/w40/${code}.png` : "";
 }
 function flag(url) { return url ? `<img class="flag" src="${esc(url)}" alt="">` : `<span class="flag fallback"></span>`; }
