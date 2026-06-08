@@ -137,3 +137,155 @@ tbody tr:hover td { background: rgba(0,167,200,.08); }
   .away-side { justify-self: start; text-align: left; }
   .score-btn { width: 100%; }
 }
+
+/* Admin : gestion des comptes */
+.admin-user-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(0,167,200,.08), rgba(255,255,255,.035));
+}
+.admin-user-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.admin-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  font-weight: 950;
+  font-size: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--lime));
+  color: #06202b;
+}
+.admin-user-card h4 {
+  margin: 0;
+  font-size: 18px;
+}
+.admin-user-card p {
+  margin: 4px 0;
+  color: var(--muted);
+}
+.admin-user-card small {
+  color: var(--muted);
+}
+.admin-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+@media (max-width: 760px) {
+  .admin-user-card,
+  .admin-user-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+
+/* UI compacte avec petits logos dans les onglets */
+.sidebar {
+  width: 300px;
+}
+.brand {
+  padding: 14px 12px 10px;
+}
+.brand img {
+  max-width: 150px;
+}
+.user-pill {
+  min-height: 34px;
+  padding: 7px 14px;
+  font-size: 15px;
+}
+.sidebar nav {
+  gap: 7px;
+  margin-top: 16px;
+}
+.nav-btn {
+  min-height: 42px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.nav-btn::before {
+  width: 23px;
+  height: 23px;
+  border-radius: 9px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  font-size: 13px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.nav-btn.active::before {
+  background: rgba(6,32,43,.25);
+  border-color: rgba(255,255,255,.18);
+}
+.nav-btn[data-view="dashboard"]::before { content: "⌂"; }
+.nav-btn[data-view="myPredictions"]::before { content: "✓"; }
+.nav-btn[data-view="worldCup"]::before { content: "🏆"; }
+.nav-btn[data-view="results"]::before { content: "▦"; }
+.nav-btn[data-view="predictions"]::before { content: "✎"; }
+.nav-btn[data-view="ranking"]::before { content: "★"; }
+.nav-btn[data-view="teams"]::before { content: "👥"; }
+.nav-btn[data-view="admin"]::before { content: "⚙"; }
+
+.content {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+.topbar {
+  min-height: 120px;
+  padding: 24px 28px;
+}
+.topbar h2 {
+  font-size: 34px;
+}
+.panel {
+  padding: 18px;
+}
+.panel-head h3,
+.admin-panel h3 {
+  font-size: 18px;
+}
+.group-head h3 {
+  font-size: 19px;
+  letter-spacing: .03em;
+}
+th, td {
+  padding: 11px 10px;
+}
+.flag {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 1100px) {
+  .sidebar {
+    width: auto;
+  }
+  .sidebar nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+  }
+}
